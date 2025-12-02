@@ -1,0 +1,8 @@
+Usage:
+
+MD解析
+make; ./mdspass2
+
+
+テンソル回転のデモ
+make tensor; ./tensor > hoge.d

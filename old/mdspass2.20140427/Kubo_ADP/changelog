@@ -1,0 +1,520 @@
+5a6
+> #include <sstream>
+10,15c11,17
+< void mishin(double rr, double **param, double &val, double &grad, int p);
+< void mishin_sc(double rr, double **param, double &val, double &grad, int p);
+< void csw2(double rr, double *param, double &val, double &grad);
+< void csw2_sc(double rr, double **param, double &val, double &grad, int p);
+< void poly_5(double rr, double **param, double &val, double &grad, int p);
+< void exp_plus(double rr, double *param, double &val, double &grad);
+---
+> 
+> void mishin     (double rr, double **param, double &val, double &grad, int p);
+> void mishin_sc  (double rr, double **param, double &val, double &grad, int p);
+> void csw2       (double rr, double *param,  double &val, double &grad);
+> void csw2_sc    (double rr, double **param, double &val, double &grad, int p);
+> void poly_5     (double rr, double **param, double &val, double &grad, int p);
+> void exp_plus   (double rr, double *param,  double &val, double &grad);
+16a19,29
+> 
+> // Kubo 20140124 ---------------
+> /*
+> void psi(double rr, double rc, double h, double &val, double &grad);
+> void eopp_exp   (double rr, double **param, double &val, double &grad, int p);
+> void eopp_exp_sc(double rr, double **param, double &val, double &grad, int p);
+> void meopp      (double rr, double **param, double &val, double &grad, int p);
+> void meopp_sc   (double rr, double **param, double &val, double &grad, int p);
+> */
+> // End -------------------------
+> 
+50a64,72
+> 
+> // Kubo 20140226 ---------------
+>     adp.Phi = NULL;
+>     adp.Rho = NULL;
+>     adp.F   = NULL;
+>     adp.U   = NULL;
+>     adp.W   = NULL;
+> // End -------------------------
+> 
+89c111,116
+< 	  mishin_sc(rr, adp.param_pair, phi_val, phi_grad, ipair);
+---
+> 
+> // Kubo 20140225 ---------------
+> //	  mishin_sc(rr, adp.param_pair, phi_val, phi_grad, ipair);
+>     adp.Phi[ipair]->Calc(rr,phi_val,phi_grad);
+> // End -------------------------
+> 
+106a134
+> 
+108c136,141
+< 	  exp_plus_sc(rr, adp.param_dp, u_val, u_grad, ipair);
+---
+> 
+> // Kubo 20140225 ---------------
+> //	  exp_plus_sc(rr, adp.param_dp, u_val, u_grad, ipair);
+>     adp.U[ipair]->Calc(rr,u_val,u_grad);
+> // End -------------------------
+> 
+113a147
+> 
+115c149,154
+< 	  exp_plus_sc(rr, adp.param_qp, w_val, w_grad, ipair);
+---
+> 
+> // Kubo 20140225 ---------------
+> //	  exp_plus_sc(rr, adp.param_qp, w_val, w_grad, ipair);
+>     adp.W[ipair]->Calc(rr,w_val,w_grad);
+> // End -------------------------
+> 
+126c165,170
+< 	    csw2_sc(rr, adp.param_den, rho_val, rho_grad, typ2);
+---
+> 
+> // Kubo 20140225 ---------------
+> //	    csw2_sc(rr, adp.param_den, rho_val, rho_grad, typ2);
+>       adp.Rho[typ2]->Calc(rr,rho_val,rho_grad);
+> // End -------------------------
+> 
+130,131c174,181
+< 	    csw2_sc(rr, adp.param_den, rho_val, rho_grad, typ2);
+< 	    csw2_sc(rr, adp.param_den, rho_val_j, rho_grad_j, typ1);
+---
+> 
+> // Kubo 20140225 ---------------
+> //	    csw2_sc(rr, adp.param_den, rho_val, rho_grad, typ2);
+> //	    csw2_sc(rr, adp.param_den, rho_val_j, rho_grad_j, typ1);
+>       adp.Rho[typ2]->Calc(rr,rho_val,rho_grad);
+>       adp.Rho[typ1]->Calc(rr,rho_val_j,rho_grad_j);
+> // End -------------------------
+> 
+137a188
+> 
+139c190,196
+<     poly_5(adp.rho[i], adp.param_eb, eb_val, eb_grad, typ1);
+---
+> 
+> // Kubo 20140225 ---------------
+> //    poly_5(adp.rho[i], adp.param_eb, eb_val, eb_grad, typ1);
+>     adp.F[typ1]->Calc(adp.rho[i],eb_val,eb_grad);
+> //    std::cout<<"(^Q^)~~ "<< eb_val <<std::endl; exit(0);
+> // End -------------------------
+> 
+157a215,217
+> 
+> //  for(int i=1;i<=atom.natom;i++){std::cout<<adp.rho[i]<<std::endl;} exit(0); // Kubo
+> 
+173a234
+> 
+175c236,241
+< 	  csw2_sc(rr, adp.param_den, rho_val, rho_grad, typ2);
+---
+> 
+> // Kubo 20140227 ---------------
+> //	  csw2_sc(rr, adp.param_den, rho_val, rho_grad, typ2);
+>     adp.Rho[typ2]->Calc(rr,rho_val,rho_grad);
+> // End -------------------------
+> 
+179c245,248
+< 	    csw2_sc(rr, adp.param_den, rho_val, rho_grad_j, typ1);
+---
+> // Kubo 20140227 ---------------
+> //	    csw2_sc(rr, adp.param_den, rho_val, rho_grad_j, typ1);
+>     adp.Rho[typ1]->Calc(rr,rho_val,rho_grad_j);
+> // End -------------------------
+206c275,280
+< 	  exp_plus_sc(rr, adp.param_dp, u_val, u_grad, ipair); // calculated again..
+---
+> 
+> // Kubo 20140225 ---------------
+> //	  exp_plus_sc(rr, adp.param_dp, u_val, u_grad, ipair); // calculated again..
+>     adp.U[ipair]->Calc(rr,u_val,u_grad);
+> // End -------------------------
+> 
+242c316,321
+< 	  exp_plus_sc(rr, adp.param_qp, w_val, w_grad, ipair); // calculated again..
+---
+> 
+> // Kubo 20140225 ---------------
+> //	  exp_plus_sc(rr, adp.param_qp, w_val, w_grad, ipair); // calculated again..
+>     adp.W[ipair]->Calc(rr,w_val,w_grad);
+> // End -------------------------
+> 
+299a379,381
+> 
+> // Potential Functions =========================================
+> 
+373a456,464
+> 
+> // Potential Functions Above ===================================
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+639a731,773
+> // Kubo 20140224 -------------//
+>   for(int i=0; i<adp.nptype+1; i++){
+>     if(adp.Phi!=NULL){
+>     if(adp.Phi[i]!=NULL){
+>       delete adp.Phi[i];
+>       adp.Phi[i] = NULL;
+>     }
+>     }
+>     if(adp.U!=NULL){
+>     if(adp.U[i]!=NULL){
+>       delete adp.U[i];
+>       adp.U[i] = NULL;
+>     }
+>     }
+>     if(adp.W!=NULL){
+>     if(adp.W[i]!=NULL){
+>       delete adp.W[i];
+>       adp.W[i] = NULL;
+>     }
+>     }
+>   }
+>   for(int i=0; i<adp.ntype+1; i++){
+>     if(adp.Rho!=NULL){
+>     if(adp.Rho[i]!=NULL){
+>       delete adp.Rho[i];
+>       adp.Rho[i] = NULL;
+>     }
+>     }
+>     if(adp.F!=NULL){
+>     if(adp.F[i]!=NULL){
+>       delete adp.F[i];
+>       adp.F[i] = NULL;
+>     }
+>     }
+>   }
+>   if(adp.Phi!=NULL){delete [] adp.Phi; adp.Phi = NULL;}
+>   if(adp.Rho!=NULL){delete [] adp.Rho; adp.Rho = NULL;}
+>   if(adp.F  !=NULL){delete [] adp.F;   adp.F   = NULL;}
+>   if(adp.U  !=NULL){delete [] adp.U;   adp.U   = NULL;}
+>   if(adp.W  !=NULL){delete [] adp.W;   adp.W   = NULL;}
+> 
+> // End -----------------------//
+> 
+651a786,787
+> 
+> // Kubo 20140225 ---------------
+653c789
+<   for (int i=0; i<adp.nptype+1; i++) { adp.param_pair[i] = new double[7]; }
+---
+> //  for (int i=0; i<adp.nptype+1; i++) { adp.param_pair[i] = new double[7]; }
+655c791
+<   for (int i=0; i<adp.ntype+1; i++) { adp.param_den[i] = new double[5]; }
+---
+> //  for (int i=0; i<adp.ntype+1; i++) { adp.param_den[i] = new double[5]; }
+657c793
+<   for (int i=0; i<adp.ntype+1; i++) { adp.param_eb[i] = new double[5]; }
+---
+> //  for (int i=0; i<adp.ntype+1; i++) { adp.param_eb[i] = new double[5]; }
+659c795
+<   for (int i=0; i<adp.nptype+1; i++) { adp.param_dp[i] = new double[4]; }
+---
+> //  for (int i=0; i<adp.nptype+1; i++) { adp.param_dp[i] = new double[4]; }
+661c797,799
+<   for (int i=0; i<adp.nptype+1; i++) { adp.param_qp[i] = new double[4]; }
+---
+> //  for (int i=0; i<adp.nptype+1; i++) { adp.param_qp[i] = new double[4]; }
+> // End -------------------------
+> 
+666a805,825
+> 
+> // Kubo 20140224 -------------//
+>   adp.Phi = new PairFunction*[adp.nptype+1];
+>   adp.Rho = new PairFunction*[adp.ntype+1];
+>   adp.F   = new PairFunction*[adp.ntype+1];
+>   adp.U   = new PairFunction*[adp.nptype+1];
+>   adp.W   = new PairFunction*[adp.nptype+1];
+> 
+> /* Later Create Instances
+>   for(int i=0; i<adp.nptype+1; i++){
+>     adp.Phi[i] = new PairFunction();
+>     adp.U[i]   = new PairFunction();
+>     adp.W[i]   = new PairFunction();
+>   }
+>   for(int i=0; i<adp.ntype+1; i++){
+>     adp.Rho[i] = new PairFunction();
+>     adp.F[i]   = new PairFunction();
+>   }
+> */
+> 
+> // End -----------------------//
+784c943,946
+<   // pair
+---
+> 
+> //std::cout<<"(^Q^) Find Me!"<<std::endl; exit(0);
+> 
+>   // pair ------------------------------------------------------
+786a949,950
+> 
+> /* Original Edition
+797c961,998
+<   // den
+---
+> //*/
+> 
+> // Kubo 20140224 -------------//
+>   {
+>   using namespace std;
+> 
+>   PairFunction *ghost = new PairFunction();
+>   int iNumParam = ghost->GetNumOfParam(arg1);
+>   string functype = arg1;
+> 
+> 
+>   for(int i=0; i<=adp.nptype; i++){adp.param_pair[i] = new double[iNumParam];}
+> 
+>   for(int j=0; j<iNumParam; j++){
+>     getline(fin, line);
+>     for(int i=1; i<=adp.nptype; i++){
+>       get_first_arg(line, arg1);
+>       strcpy(larg1, arg1.c_str());
+>       xx = atof(larg1);
+>       adp.param_pair[i][j] = xx;
+>     }
+>   }
+> 
+>   adp.Phi[0] = new PairFunction();
+>   for(int i=1; i<=adp.nptype; i++){
+> //    adp.Phi[i] = new PairFunction(functype,adp.param_pair[i],adp.cut);
+>     stringstream ss; ss << "PHI_" << i << "(" << functype << ")";
+>     adp.Phi[i] = new PairFunction(functype,adp.param_pair[i],adp.cut,ss.str());
+>   }
+> 
+>   delete ghost; ghost = NULL;
+> 
+> //  adp.Phi[1]->Plot(2,7,1000,"test.out"); exit(0);
+>   }
+> // End -----------------------//
+> 
+> 
+>   // den -------------------------------------------------------
+799a1001,1002
+> 
+> /* Original Edition
+810c1013,1049
+<   //embed
+---
+> //*/
+> 
+> // Kubo 20140225 -------------//
+>   {
+>   using namespace std;
+> 
+>   PairFunction *ghost = new PairFunction();
+>   int iNumParam = ghost->GetNumOfParam(arg1);
+>   string functype = arg1;
+> 
+>   for(int i=0; i<=adp.ntype; i++){adp.param_den[i] = new double[iNumParam];}
+> 
+>   for(int j=0; j<iNumParam; j++){
+>     getline(fin, line);
+>     for(int i=1; i<=adp.ntype; i++){
+>       get_first_arg(line, arg1);
+>       strcpy(larg1, arg1.c_str());
+>       xx = atof(larg1);
+>       adp.param_den[i][j] = xx;
+>     }
+>   }
+> 
+>   adp.Rho[0] = new PairFunction();
+>   for(int i=1; i<=adp.ntype; i++){
+> //    adp.Rho[i] = new PairFunction(functype,adp.param_den[i],adp.cut);
+>     stringstream ss; ss << "RHO_" << i << "(" << functype << ")";
+>     adp.Rho[i] = new PairFunction(functype,adp.param_den[i],adp.cut,ss.str());
+>   }
+> 
+>   delete ghost; ghost = NULL;
+> 
+> //  adp.Rho[1]->Plot(2,7,1000,"test.out"); exit(0);
+>   }
+> // End 20140225 --------------//
+> 
+> 
+>   //embed ------------------------------------------------------
+813,816c1052,1057
+<   if (strcmp(arg1.c_str(), "poly_5")!=0) { printf("Error in ADP param\n"); return 0; }
+<   for (int j=0; j<5; j++) {
+<     getline (fin, line);
+<     for (int i=1; i<=adp.ntype; i++) {
+---
+> 
+> /* Original Edition
+>   if(strcmp(arg1.c_str(), "poly_5")!=0){ printf("Error in ADP param\n"); return 0; }
+>   for(int j=0; j<5; j++){
+>     getline(fin, line);
+>     for(int i=1; i<=adp.ntype; i++) {
+818c1059
+<       strcpy (larg1, arg1.c_str());
+---
+>       strcpy(larg1, arg1.c_str());
+823c1064,1100
+<   //dipole
+---
+> //*/
+> 
+> // Kubo 20140225 -------------//
+>   {
+>   using namespace std;
+> 
+>   PairFunction *ghost = new PairFunction();
+>   int iNumParam = ghost->GetNumOfParam(arg1);
+>   string functype = arg1;
+> 
+>   for(int i=0; i<=adp.ntype; i++){adp.param_eb[i] = new double[iNumParam];}
+> 
+>   for(int j=0; j<iNumParam; j++){
+>     getline(fin, line);
+>     for(int i=1; i<=adp.ntype; i++){
+>       get_first_arg(line, arg1);
+>       strcpy(larg1, arg1.c_str());
+>       xx = atof(larg1);
+>       adp.param_eb[i][j] = xx;
+>     }
+>   }
+> 
+>   adp.F[0] = new PairFunction();
+>   for(int i=1; i<=adp.ntype; i++){
+> //    adp.F[i] = new PairFunction(functype,adp.param_eb[i],0.0);
+>     stringstream ss; ss << "F_" << i << "(" << functype << ")";
+>     adp.F[i] = new PairFunction(functype,adp.param_eb[i],0.0,ss.str());
+>   }
+> 
+>   delete ghost; ghost = NULL;
+> 
+> //  adp.F[1]->Plot(0,5,1000,"test.out"); exit(0);
+>   }
+> // End 20140225 --------------//
+> 
+> 
+>   //dipole -----------------------------------------------------
+825a1103,1104
+> 
+> /* Original Edition
+836c1115,1151
+<   //quadrupole
+---
+> //*/
+> 
+> // Kubo 20140225 -------------//
+>   {
+>   using namespace std;
+> 
+>   PairFunction *ghost = new PairFunction();
+>   int iNumParam = ghost->GetNumOfParam(arg1);
+>   string functype = arg1;
+> 
+>   for(int i=0; i<=adp.nptype; i++){adp.param_dp[i] = new double[iNumParam];}
+> 
+>   for(int j=0; j<iNumParam; j++){
+>     getline(fin, line);
+>     for(int i=1; i<=adp.nptype; i++){
+>       get_first_arg(line, arg1);
+>       strcpy(larg1, arg1.c_str());
+>       xx = atof(larg1);
+>       adp.param_dp[i][j] = xx;
+>     }
+>   }
+> 
+>   adp.U[0] = new PairFunction();
+>   for(int i=1; i<=adp.nptype; i++){
+> //    adp.U[i] = new PairFunction(functype,adp.param_dp[i],adp.cut);
+>     stringstream ss; ss << "U_" << i << "(" << functype << ")";
+>     adp.U[i] = new PairFunction(functype,adp.param_dp[i],adp.cut,ss.str());
+>   }
+> 
+>   delete ghost; ghost = NULL;
+> 
+> //  adp.U[1]->Plot(2,7,1000,"test.out"); exit(0);
+>   }
+> // End 20140225 --------------//
+> 
+> 
+>   //quadrupole -------------------------------------------------
+838a1154,1155
+> 
+> /* Original Edition
+848a1166,1238
+> //*/
+> 
+> // Kubo 20140225 -------------//
+>   {
+>   using namespace std;
+> 
+>   PairFunction *ghost = new PairFunction();
+>   int iNumParam = ghost->GetNumOfParam(arg1);
+>   string functype = arg1;
+> 
+>   for(int i=0; i<=adp.nptype; i++){adp.param_qp[i] = new double[iNumParam];}
+> 
+>   for(int j=0; j<iNumParam; j++){
+>     getline(fin, line);
+>     for(int i=1; i<=adp.nptype; i++){
+>       get_first_arg(line, arg1);
+>       strcpy(larg1, arg1.c_str());
+>       xx = atof(larg1);
+>       adp.param_qp[i][j] = xx;
+>     }
+>   }
+> 
+>   adp.W[0] = new PairFunction();
+>   for(int i=1; i<=adp.nptype; i++){
+> //    adp.W[i] = new PairFunction(functype,adp.param_qp[i],adp.cut);
+>     stringstream ss; ss << "W_" << i << "(" << functype << ")";
+>     adp.W[i] = new PairFunction(functype,adp.param_qp[i],adp.cut,ss.str());
+>   }
+> 
+>   delete ghost; ghost = NULL;
+> 
+> //  adp.W[1]->Plot(2,7,1000,"test.out"); exit(0);
+>   }
+> // End 20140225 --------------//
+> 
+> 
+> // Kubo 20140226 -------------//
+> /* Plot All Functions
+> { using namespace std;
+>   for(int i=1;i<=adp.nptype;i++){
+>     stringstream ss;
+>     ss << "PHI_" << i << ".out";
+>     adp.Phi[i]->Plot(2,7,1000,ss.str());
+>   }
+>   for(int i=1;i<=adp.ntype;i++){
+>     stringstream ss;
+>     ss << "RHO_" << i << ".out";
+>     adp.Rho[i]->Plot(2,7,1000,ss.str());
+>   }
+>   for(int i=1;i<=adp.ntype;i++){
+>     stringstream ss;
+>     ss << "F_" << i << ".out";
+>     adp.F[i]->Plot(0,5,1000,ss.str());
+>   }
+>   for(int i=1;i<=adp.nptype;i++){
+>     stringstream ss;
+>     ss << "U_" << i << ".out";
+>     adp.U[i]->Plot(2,7,1000,ss.str());
+>   }
+>   for(int i=1;i<=adp.nptype;i++){
+>     stringstream ss;
+>     ss << "W_" << i << ".out";
+>     adp.W[i]->Plot(2,7,1000,ss.str());
+>   }
+>   exit(0);
+> }
+> //*/
+> // End -----------------------//
+> 
+> 
+> 
+> 
+> 
+886a1277
+> 

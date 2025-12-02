@@ -1,0 +1,75 @@
+#
+# Example of SETDAT. A line starting with # is regarded as a comment and ignored.
+#
+dt 0.5         # MD time step. [fs] is recommended, but [s] is also accepted.
+frc 10.0      # Cut-off radius for book-keeping. [A] is recommended.
+               # Using frc_margin is recommended instead of frc.
+frc_margin 0.2 # Difference between frc and cut-off radius for potential in [A]
+nbk 20         # Book-keeping is renewed every nbk steps.
+stop_force yes  # If yes, MD stops when Fmax is below stop_force_val.
+stop_force_val 0.0000001 # force tolerance in [eV/A].
+stop_step no   # If yes, MD stops at the given number of steps (stop_step_num).
+stop_step_num 2000 # Number of steps for one MD run.
+stop_stress no
+stop_stress_val 10
+temp 100       # Target temperature in [K] for NVT
+pbcx no       # Periodic boundary condition for x axis (yes/no)
+pbcy no       # y axis
+pbcz yes       # z axis
+no_trans yes   # if center of gravity of atoms is fixed (yes/no)
+keep_in_cell no # if atoms are always confined in the cell (yes/no)
+recipe no      # If yes, commands are executed according to RECIPE file
+mdmotion no    # If yes, MD runs immediately
+cellfix_zz no
+#
+# Ensemble and relaxation
+#
+ensemble 2     # ensemble type (MD algorithm). 0=NVE, 1=NVT, 2=Relaxation
+prmass -1.0
+prdamper 20
+relax_algo 0    # Relaxation algorithm. 0=gloc, 1=FIRE, 2=CG
+relax_gloc_accel no # GLOC acceleration
+#ffdtmax 10.0   # (Obsolete)
+fire_dtmax 10.0   # maximum value of dt in FIRE relaxation algorithm in [s] or [fs]
+fire_alph_ini 0.1 # initial value of alpha (F2 : v = (1-a)*v + a*F*|v|)
+fire_alph_rate 0.99 # rate of alpha change ( <1 )
+fire_inc 1.1 # dt increment rate ( >1 )
+fire_dec 0.3 # dt decrement rate ( <1 )
+fire_nfmin 3 # number of minimum steps for acceleration
+#
+# For drawing
+#
+redraw_interval 1 # Graphics is re-drawn every XX steps.
+radius 5       # radius of atom spheres
+segment 12     # segments of atom spheres (sphere smoothness)
+draw_bond yes  # if bonds are drawn (yes/no)
+draw_force yes # if forces on atoms are drawn (yes/no)
+draw_aux yes   # if auxiliary constraint is drawn (yes/no)
+forcelength 0.5     # length of arrows for force drawing
+bondlength 1.6 # maximum length of bonds [A]
+show_cell yes  # if simulation cell is drawn (yes/no)
+color_mode 0   # Color of atoms. 0=species, 1=energy, 2=CSP
+color_mode_auto yes 
+#
+# For CNT
+#
+cnt_corrugation no # if CNT corrugation mode (loading by WALL or RING) is on (yes/no)
+cnt_load_algo 2     # WALL mode or RING mode. 0=Hydro, 1=Ring-force, 2=Ring-rigid
+show_cnt_wall no    # if CNT walls are drawn (yes/no)
+show_cnt_wallv no   # if normal vectors of CNT walls are drawn (yes/no)
+show_cnt_wall_num 0 # X-th wall is drawn (if 0, nothing is drawn)
+show_cnt_ring no    # if CNT ring is drawn (yes/no)
+read_cnt_wall yes   # if CNTWALL is read at start
+cnt_pressure 0.085
+#
+# For deformation simulation
+#
+yzplane_punch     yes  # Auxiliary constraint
+yzplane_punch_d  10.0
+yzplane_punch_dd  0.0
+#dexdt 0.1      # rate of strain (normal strain in x axis) [/ps]
+#deydt 0.0      # y axis
+#dezdt 0.0      # z axis
+#repeat_lz yes     # If yes, e_z moves between minimum and maximum values.
+#repeat_lz_min 29  # minimum of e_z (normal strain in z axis)
+#repeat_lz_max 33  # maximum of e_z

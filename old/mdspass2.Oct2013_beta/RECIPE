@@ -1,0 +1,53 @@
+# Example of recipe file
+# 1st line describes the command to be executed
+#  when the 1st MD run ends (1st MD run is usually started manually),
+#  and the following commands follow.
+# Recognized tags:
+# MD : to start next MD run
+# WRITE : to write configuration file (2nd tag = filename, default = CONFIG.OUT)
+# WRITE_ABS : to write configuration file in 'abs' format
+# READ_SETDAT : to read new SETDAT file (2nd tag = filename)
+# CAPTURE : to capture screen (2nd tag = filename, default = filename is set automatically)
+# SET_LX (or SET_LY, SET_LZ) : to set cell size (2nd tag = new value in ang)
+# INSTABILITY : to perform instability analysis (mode is given by inst_mode in SETDAT)
+# CALC_EX : calculation of elastic constants (data written to file)
+# QUIT : to quit mdspass2
+#WRITE CONFIG.OUT
+#CAPTURE CAP1.png
+SET_LZ 13.550000
+MD
+CALC_EC
+SET_LZ 13.555000
+MD
+CALC_EC
+SET_LZ 13.560000
+MD
+CALC_EC
+SET_LZ 13.57
+MD
+CALC_EC
+SET_LZ 13.58
+MD
+CALC_EC
+SET_LZ 13.59
+MD
+CALC_EC
+SET_LZ 13.60
+MD
+CALC_EC
+SET_LZ 13.61
+MD
+CALC_EC
+SET_LZ 13.62
+MD
+CALC_EC
+SET_LZ 13.63
+MD
+CALC_EC
+SET_LZ 13.64
+MD
+CALC_EC
+SET_LZ 13.65
+MD
+CALC_EC
+QUIT

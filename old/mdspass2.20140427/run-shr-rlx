@@ -1,0 +1,104 @@
+#!/usr/bin/perl
+open (S, ">>SUMMARY");
+$gamma=0.04;
+$ginc=0.04;
+#$hydro=-20000;
+$hydro=0;
+$xstr=0.0; $ystr=0.0; $zstr=0.0;
+#$xstr=-0.00479762740384615;
+#$ystr=6.28982683982684e-05;
+#$zstr=0.00286628333333333;
+$a=5.46905;
+
+while ($gamma<=0.4001) {
+
+$count=0;
+while ($count<=20) {
+  $count++;
+  print "Gamma=$gamma str(x)=$xstr str(y)=$ystr str(z)=$zstr \n";
+  
+  $ba1x= sqrt(2.0)/4.0*(1.0+$xstr);
+  $ba1y= sqrt(6.0)/4.0*(1.0+$ystr);
+  $ba1z= 0.0;
+  $ba2x=-sqrt(2.0)/4.0*(1.0+$xstr);
+  $ba2y= sqrt(6.0)/4.0*(1.0+$ystr);
+  $ba2z= 0.0;
+  $ba3x= sqrt(3.0)/3.0*sin($gamma)/cos($gamma)*(1.0+$zstr);
+  $ba3y= sqrt(6.0)/6.0*(1.0+$ystr);
+  $ba3z= sqrt(3.0)/3.0*(1.0+$zstr);
+
+  open(F, ">POSCAR");
+  print F "Silicon:  g=$gamma, n-str=$xstr, $ystr, $zstr \n";
+  print F "$a\n";
+  print F "$ba1x $ba1y $ba1z\n";
+  print F "$ba2x $ba2y $ba2z\n";
+  print F "$ba3x $ba3y $ba3z\n";
+  print F "2\n";
+  print F "direct\n";
+  print F "0 0 0\n";
+  print F "0.25 0.25 0.25\n";
+  close(F);
+  
+  system("mpirun -np 15 ./vasp");
+
+# Extract stress output (last line) from OUTCAR
+open (T,"<OUTCAR");
+while ($line=<T>) {
+chomp($line);
+@splitline=split(/\s+/,$line);
+if ($splitline[2] eq 'kB') {
+@result[1]= "$splitline[3]";
+@result[2]= "$splitline[4]";
+@result[3]= "$splitline[5]";
+@result[4]= "$splitline[8]";
+}
+}
+close (T);
+$xo=-$result[1]*100; $yo=-$result[2]*100; $zo=-$result[3]*100;
+$x=$xo-$hydro;$y=$yo-$hydro;$z=$zo-$hydro;
+$tau=-$result[4]/10;
+print S "# $gamma $xstr $ystr $zstr $xo $yo $zo $tau\n";
+  if (($x<100) && ($y<100) && ($z<100) && ($x>-100) && ($y>-100) && ($z>-100)) {
+print S "$gamma $xstr $ystr $zstr $xo $yo $zo $tau\n";
+unless (-d "data") { system("mkdir data"); }
+#    system("cp CHG data/CHG.$gamma");
+#    system("cp CHGCAR data/CHGCAR.$gamma");
+    system("cp CONTCAR data/CONTCAR.$gamma");
+#    system("cp OUTCAR data/OUTCAR.$gamma");
+#    system("cp OSZICAR data/OSZICAR.$gamma");
+#    system("cp WAVECAR data/WAVWCAR.$gamma");
+    $count=$count+100;
+    next;
+  } else {
+    if ($count == 1) {
+      $xstrp=$xstr; $ystrp=$ystr; $zstrp=$zstr;
+      $xp=$x; $yp=$y; $zp=$z;
+      $xstr=$xstr-$x/1000000;
+      $ystr=$ystr-$y/1000000;
+      $zstr=$zstr-$z/1000000;
+      next;
+    } else {
+      $tmpx=$xstr; $tmpy=$ystr; $tmpz=$zstr;
+      if ($x!=$xp) {
+	$xstr=$xstr-($x*($xstr-$xstrp)/($x-$xp));
+      } else {
+	$xstr=$xstr-$x/1000000;
+      }
+      if ($y!=$yp) {
+	$ystr=$ystr-($y*($ystr-$ystrp)/($y-$yp));
+      } else {
+	$ystr=$ystr-$y/1000000;
+      }
+      if ($z!=$zp) {
+	$zstr=$zstr-($z*($zstr-$zstrp)/($z-$zp));
+      } else {
+	$zstr=$zstr-$z/1000000;
+      }
+      $xstrp=$tmpx; $ystrp=$tmpy; $zstrp=$tmpz;
+      $xp=$x; $yp=$y; $zp=$z;
+    }
+  }
+}
+$gamma=$gamma+$ginc;
+}
+close(S);

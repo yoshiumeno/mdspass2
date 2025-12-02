@@ -1,0 +1,51 @@
+#
+# Example of SETDAT. A line starting with # is regarded as a comment and ignored.
+#
+dt 0.5         # MD time step. [fs] is recommended, but [s] is also accepted.
+frc 8.0      # Cut-off radius for book-keeping. [A] is recommended.
+               # Using frc_margin is recommended instead of frc.
+frc_margin 0.2 # Difference between frc and cut-off radius for potential in [A]
+nbk 20         # Book-keeping is renewed every nbk steps.
+stop_force no  # If yes, MD stops when Fmax is below stop_force_val.
+stop_force_val 0.01 # force tolerance in [eV/A].
+temp 100       # Target temperature in [K] for NVT
+pbcx yes       # Periodic boundary condition for x axis (yes/no)
+pbcy yes       # y axis
+pbcz yes       # z axis
+no_trans yes   # if center of gravity of atoms is fixed (yes/no)
+keep_in_cell no # if atoms are always confined in the cell (yes/no)
+#
+# Ensemble and relaxation
+#
+ensemble 2     # ensemble type (MD algorithm). 0=NVE, 1=NVT, 2=Relaxation
+relax_algo     # Relaxation algorithm. 0=gloc, 1=FIRE
+ffdtmax 10.0   # maximum value of dt in FIRE relaxation algorithm in [s] or [fs]
+#
+# For drawing
+#
+redraw_interval 10 # Graphics is re-drawn every XX steps.
+radius 5       # radius of atom spheres
+draw_bond yes  # if bonds are drawn (yes/no)
+draw_force no # if forces on atoms are drawn (yes/no)
+forcelength 0.5     # length of arrows for force drawing
+bondlength 3.2 # maximum length of bonds [A]
+show_cell yes  # if simulation cell is drawn (yes/no)
+color_mode 0   # Color of atoms. 0=species, 1=energy, 2=CSP
+#
+# For CNT
+#
+cnt_corrugation yes # if CNT corrugation mode (loading by WALL or RING) is on (yes/no)
+cnt_load_algo 0     # WALL mode or RING mode. 0=WALL, 1=RING
+show_cnt_wall no    # if CNT walls are drawn (yes/no)
+show_cnt_wallv no   # if normal vectors of CNT walls are drawn (yes/no)
+show_cnt_wall_num 0 # X-th wall is drawn (if 0, nothing is drawn)
+show_cnt_ring no    # if CNT ring is drawn (yes/no)
+#
+# For deformation simulation
+#
+#dexdt 0.1      # rate of strain (normal strain in x axis) [/ps]
+#deydt 0.0      # y axis
+#dezdt 0.0      # z axis
+#repeat_lz yes     # If yes, e_z moves between minimum and maximum values.
+#repeat_lz_min 29  # minimum of e_z (normal strain in z axis)
+#repeat_lz_max 33  # maximum of e_z

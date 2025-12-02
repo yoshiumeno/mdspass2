@@ -1,0 +1,173 @@
+#include <iostream>
+#include <stdio.h>
+#include <fstream>
+#include "myheader.h"
+void potential();
+void inverse(double a[3][3], double b[3][3]);
+void matmul(double a[3][3], double b[3][3], double c[3][3]);
+void multiply_cell(int ix, int iy, int iz);
+void divide_cell(int ix, int iy, int iz);
+void forceconst(double **fcmat);
+void kgen_fcc(double *kx, double *ky, double *kz, int phonon_knum, int &size);
+void kgen_bcc(double *kx, double *ky, double *kz, int phonon_knum, int &size);
+void kgen_hcp(double *kx, double *ky, double *kz, int phonon_knum, int &size);
+void kgen_sc(double *kx, double *ky, double *kz, int phonon_knum, int &size);
+
+struct _dcomplex { double re, im; };
+typedef struct _dcomplex dcomplex;
+extern "C"
+void zgeev_( const char* jobvl, const char* jobvr, int* n, dcomplex* a,
+	     int* lda, dcomplex* w, dcomplex* vl, int* ldvl, dcomplex* vr, int* ldvr,
+	     dcomplex* work, int* lwork, double* rwork, int* info);
+
+extern int phonon_rep, phonon_knum;
+
+void phonon_calc()
+{
+  //printf("Phonon calculation\n");
+  //multiply cell size
+  int n0 = atom.natom*3;
+  int ix = phonon_rep, iy = phonon_rep, iz = phonon_rep;
+  multiply_cell(ix, iy, iz);
+  //allocate array
+  double **fcmat;
+  dcomplex *dm;
+  int nn = atom.natom*3;
+  fcmat = new double*[nn];
+  dm = new dcomplex[n0*n0];
+  for (int i=0; i<nn; i++) {
+    fcmat[i] = new double[nn];
+  }
+  int nn2 = n0*2, info = 1, ldvl = 1, ldvr = 1;
+  dcomplex *work; work = new dcomplex[nn2];
+  double *rwork; rwork = new double[nn2];
+  dcomplex *w;
+  dcomplex *vl, *vr;
+  w = new dcomplex[n0];
+  vl = new dcomplex[n0*ldvl]; vr = new dcomplex[nn*ldvr];
+
+  forceconst(fcmat);
+  std::ofstream ofs("phonon.d");
+  printf("Phonon dispersion data is written in phonon.d\n");
+
+  double *kx, *ky, *kz;
+  phonon_knum = 50;
+
+  int size = 0;
+  kgen_fcc(kx, ky, kz, phonon_knum, size);
+  printf("%d\n",size);
+  kx = new double[size];
+  ky = new double[size];
+  kz = new double[size];
+  kgen_fcc(kx, ky, kz, phonon_knum, size);
+
+  /*
+  if (phonon_kp == 0) {
+    kgen_fcc(kx, ky, kz, phonon_knum, size);
+  } else if (phonon_kp == 1) {
+    kgen_bcc(kx, ky, kz, phonon_knum);
+  } else if (phonon_kp == 2) {
+    kgen_sc(kx, ky, kz, phonon_knum);
+  } else if (phonon_kp == 3) {
+    kgen_hcp(kx, ky, kz, phonon_knum);
+  }
+  kx = new double[size];
+  ky = new double[size];
+  kz = new double[size];
+  if (phonon_kp == 0) {
+    kgen_fcc(kx, ky, kz, phonon_knum, size);
+  } else if (phonon_kp == 1) {
+    kgen_bcc(kx, ky, kz, phonon_knum);
+  } else if (phonon_kp == 2) {
+    kgen_sc(kx, ky, kz, phonon_knum);
+  } else if (phonon_kp == 3) {
+    kgen_hcp(kx, ky, kz, phonon_knum);
+  }
+  */
+
+  /*
+  for (int ik=0; ik<size; ik++) {
+    //double kx = 0.1*(double)ik, ky = 0, kz = 0;
+    kx[ik] = 2*M_PI/cell.hmat[0][0]*(double)ik/50;
+    ky[ik] = 2*M_PI/cell.hmat[1][1]*(double)ik/50;
+    kz[ik] = 2*M_PI/cell.hmat[2][2]*(double)ik/50;
+  }
+  */
+
+  for (int ik=0; ik<size; ik++) {
+
+  for (int i=0; i<n0*n0; i++) {
+    dm[i].re = 0; dm[i].im = 0; }
+
+  for (int i=0; i<n0; i++) {
+    int ia = i/3 + 1;
+    for (int j=0; j<nn; j++) {
+      int ja = j/3 + 1;
+      double dx = atom.rx[ia] - atom.rx[ja];
+      double dy = atom.ry[ia] - atom.ry[ja];
+      double dz = atom.rz[ia] - atom.rz[ja];
+      double xx = - (kx[ik]*dx + ky[ik]*dy + kz[ik]*dz);
+      double ms = sqrt(atom.wm[ia]*atom.wm[ja]);
+      double xxr = fcmat[i][j] * cos(xx) / ms;
+      double xxi = fcmat[i][j] * sin(xx) / ms;
+      int ii = i+(j%n0)*n0;
+      dm[ii].re += xxr; dm[ii].im += xxi;
+    }
+  }
+  zgeev_("N", "N", &n0, dm, &n0, w, vl, &ldvl, vr, &ldvr, work, &nn2, rwork, &info);
+
+  double scale = 1e-27;
+  for (int i=0; i<n0; i++) {
+    ofs << ik << " " << w[i].re * scale << std::endl;
+  }
+  ofs << std::endl;
+  }
+
+  //deallocate array
+  for (int i=0; i<nn; i++) {
+    delete[] fcmat[i];
+  }
+  delete[] fcmat, dm, work, rwork, w, vl, vr;
+  delete[] kx, ky, kz;
+  ofs.close();
+
+  //Divide cell
+  divide_cell(ix, iy, iz);
+
+}
+
+void kgen_fcc(double *kx, double *ky, double *kz, int knum, int &size)
+{
+  double len[5] = {1,1,1,0.5,1}; // ratio of k-point density
+  double spx[10],spy[10],spz[10];
+  double a = cell.hmat[0][0]/phonon_rep*2;
+  spx[0] = 1.00; spy[0] = 0.00; spz[0] = 0.50; // W
+  spx[1] = 0.50; spy[1] = 0.50; spz[1] = 0.50; // L
+  spx[2] = 0.50; spy[2] = 0.50; spz[2] = 0.50; // L
+  spx[3] = 0.00; spy[3] = 0.00; spz[3] = 0.00; // Gamma
+  spx[4] = 0.00; spy[4] = 0.00; spz[4] = 0.00; // Gamma
+  spx[5] = 1.00; spy[5] = 0.00; spz[5] = 0.00; // X
+  spx[6] = 1.00; spy[6] = 0.00; spz[6] = 0.00; // X
+  spx[7] = 1.00; spy[7] = 0.25; spz[7] = 0.25; // U
+  spx[8] = 0.75; spy[8] = 0.00; spz[8] = 0.75; // K
+  spx[9] = 0.00; spy[9] = 0.00; spz[9] = 0.00; // Gamma
+  bool count = true;
+  if (size > 0) count = false;
+  size=0;
+  for (int i=0; i<10; i+=2) {
+    int knumr = knum*len[i/2];
+    for (int k=0; k<knumr; k++) {
+      if (!count) {
+	kx[size] = M_PI/a* (spx[i]+(spx[i+1]-spx[i])/(double)knumr*(double)k);
+	ky[size] = M_PI/a* (spy[i]+(spy[i+1]-spy[i])/(double)knumr*(double)k);
+	kz[size] = M_PI/a* (spz[i]+(spz[i+1]-spz[i])/(double)knumr*(double)k);
+	printf("%d %d %f %f %f\n",size,i,kx[size]*a/2/M_PI,ky[size]*a/2/M_PI,kz[size]*a/2/M_PI);
+      }
+      size++;
+    }
+  }
+  if (!count) {
+    kx[size]=spx[9]; ky[size]=spy[9]; kz[size]=spz[9];
+  }
+  size++;
+}
