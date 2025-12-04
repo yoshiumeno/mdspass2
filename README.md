@@ -55,7 +55,7 @@ mdspass2/            # Source code (C++) for Linux
 ### How to compile (Linux/Mac)
 
 The detailed instruction is available on the laboratory website: https://www.cmsm.iis.u-tokyo.ac.jp/en/code_info_mdspass2_en.html (English)
- https://www.cmsm.iis.u-tokyo.ac.jp/en/code_info_mdspass2.html (Japanese)
+ https://www.cmsm.iis.u-tokyo.ac.jp/code_info_mdspass2.html (Japanese)
 
 
 ---
